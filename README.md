@@ -1,6 +1,6 @@
-# Atlas — interactive map dashboard template
+# Atlas — Interactive Map Dashboard
 
-A **single-file** map dashboard you can rebrand in an afternoon. Dark UI, live filtering, stat cards and a detail panel — the kind of screen property, delivery, travel and local-service businesses pay for.
+A **single-file** product-grade map explorer. Dark UI, live filters, stats, favorites, detail popups — the kind of screen property, delivery, travel and local-service businesses pay for.
 
 <p align="left">
   <a href="https://wa7181633-rgb.github.io/atlas/"><img alt="Live Demo" src="https://img.shields.io/badge/Live%20Demo-Open-22d3ee?style=for-the-badge&logo=googlechrome&logoColor=white" /></a>
@@ -11,19 +11,39 @@ A **single-file** map dashboard you can rebrand in an afternoon. Dark UI, live f
 
 **Live:** https://wa7181633-rgb.github.io/atlas/
 
-## What it is
+---
 
-One `index.html` containing everything: layout, styles and logic. Open it in a browser and it runs. No npm, no bundler, no framework, no API key.
+## What’s new (advanced version)
+
+| Feature | Description |
+|---------|-------------|
+| **16 places** | Expanded dataset with hours, phone, open/closed status |
+| **Live stats** | Total places · average rating · open now |
+| **Favorites** | Heart to save · persists in localStorage · “Saved” filter |
+| **Richer cards** | Open/closed badge, distance, tags, rating |
+| **Detail popup** | Hours, status, tags, Directions + Save |
+| **My location** | One-click center on downtown |
+| **Empty state** | Clear message when filters return nothing |
+| **Toast feedback** | Save / remove / location actions |
+| **Keyboard** | ⌘K / Ctrl+K focus search · Esc close popup |
+| **Mobile sheet** | Collapsible bottom panel with grabber |
+
+Still **zero dependencies**. One `index.html`. Open and run.
+
+---
 
 ## Features
 
-- **Interactive map area** with themed markers and hover states
-- **Live search + category filters** that update results instantly
-- **Stat cards** for headline numbers (total, active, average)
-- **Detail side panel** for the selected item
-- **Dark, product-grade UI** with a proper design-token palette (`--accent`, `--panel`, `--radius`)
-- **Responsive** down to mobile widths
-- **Zero dependencies** — deploys free on GitHub Pages, Netlify or Cloudflare Pages
+- Interactive SVG map with themed markers + pulse
+- Live search + category filters (including Saved)
+- Stat cards for headline numbers
+- Detail popup with open status, hours, actions
+- Favorites with localStorage
+- Zoom controls + reset
+- Fully responsive (desktop sidebar / mobile bottom sheet)
+- Dark product UI with design tokens
+
+---
 
 ## Quick start
 
@@ -37,46 +57,30 @@ open index.html       # macOS
 
 ## Rebranding (5 minutes)
 
-All colours sit in one block at the top of the file:
+Colours live in `:root` at the top of the file.
 
-```css
-:root{
-  --bg:#070d18;
-  --panel:rgba(13,20,36,.86);
-  --accent:#22d3ee;    /* primary */
-  --accent-2:#a78bfa;  /* secondary */
-  --green:#34d399;
-}
-```
-
-Data lives in a plain array — swap it for your own records or fetch it from an API:
-
-```js
-const places = [
-  { name: 'Sample location', category: 'retail', lat: 24.86, lng: 67.01 },
-];
-```
+Data is a plain array — swap it for your own records or fetch from an API.
 
 ## Good for
 
 | Use case | Why it fits |
-|---|---|
-| Property / real-estate listings | Map + filters + detail panel is the standard pattern |
-| Delivery or fleet tracking | Stat cards + marker list |
-| Travel and tour operators | Category filters and location previews |
-| Local directories | Search + categories, no backend needed |
+|----------|-------------|
+| Property / real-estate | Map + filters + detail panel |
+| Delivery / fleet | Stats + marker list |
+| Travel & tours | Categories + location previews |
+| Local directories | Search + categories, no backend |
 
 ## Deploy
 
-**GitHub Pages:** push the repo → Settings → Pages → Source `main` / `/root`.
-**Netlify:** drag the folder onto https://app.netlify.com/drop.
-**Cloudflare Pages:** connect the repo, no build command, output directory `/`.
+**GitHub Pages:** Settings → Pages → Source `main` / `/root`  
+**Netlify:** drag the folder onto https://app.netlify.com/drop  
+**Cloudflare Pages:** connect the repo, no build command
 
 ## Need a custom version?
 
-Want this connected to a real database, live GPS, or your own API? That’s exactly what I do.
+Connected to a real database, live GPS, or your own API? That’s exactly what I do.
 
-→ See my profile or message me on [WhatsApp](https://wa.me/923122581354)
+→ [WhatsApp](https://wa.me/923122581354) · [Portfolio](https://wa7181633-rgb.github.io/farmoz-site/)
 
 ## License
 
