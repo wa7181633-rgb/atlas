@@ -1,1 +1,655 @@
-PLACEHOLDER
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="Atlas — Interactive city map dashboard. Live filters, stats, favorites, dark product UI. Zero dependencies." />
+<meta name="theme-color" content="#070d18" />
+<title>Atlas — Explore the city</title>
+<style>
+  :root{
+    --bg:#070d18;
+    --panel:rgba(13,20,36,.88);
+    --panel-solid:#0d1424;
+    --line:rgba(148,163,184,.14);
+    --text:#e6edf7;
+    --muted:#8fa1bd;
+    --accent:#22d3ee;
+    --accent-2:#a78bfa;
+    --green:#34d399;
+    --amber:#fbbf24;
+    --rose:#fb7185;
+    --orange:#fb923c;
+    --radius:16px;
+    --shadow:0 24px 60px rgba(0,0,0,.45);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:"Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+    overflow:hidden;
+  }
+  button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+  ::selection{background:rgba(34,211,238,.3)}
+
+  .app{display:flex;flex-direction:column;height:100dvh}
+
+  header{
+    height:64px;flex:0 0 64px;display:flex;align-items:center;gap:16px;
+    padding:0 18px;border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg,rgba(10,16,30,.96),rgba(10,16,30,.78));
+    backdrop-filter:blur(14px);position:relative;z-index:40;
+  }
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.2px;flex:none}
+  .brand-mark{
+    width:34px;height:34px;border-radius:11px;display:grid;place-items:center;
+    background:conic-gradient(from 210deg,#22d3ee,#6366f1,#a78bfa,#22d3ee);
+    box-shadow:0 0 22px rgba(34,211,238,.35);
+  }
+  .brand-mark svg{width:18px;height:18px}
+  .brand small{display:block;font-size:11px;font-weight:500;color:var(--muted);letter-spacing:.4px}
+
+  .search{
+    flex:1;max-width:480px;display:flex;align-items:center;gap:10px;
+    background:rgba(148,163,184,.07);border:1px solid var(--line);
+    border-radius:999px;padding:9px 14px;transition:.2s;
+  }
+  .search:focus-within{border-color:rgba(34,211,238,.55);box-shadow:0 0 0 4px rgba(34,211,238,.1)}
+  .search svg{width:16px;height:16px;color:var(--muted);flex:none}
+  .search input{flex:1;background:none;border:0;outline:0;color:var(--text);font-size:14px}
+  .search input::placeholder{color:#5f718d}
+  .kbd{font-size:11px;color:var(--muted);border:1px solid var(--line);padding:2px 7px;border-radius:6px;background:rgba(148,163,184,.06)}
+
+  .header-actions{display:flex;align-items:center;gap:8px;margin-left:auto}
+  .ghost-btn{
+    display:flex;align-items:center;gap:7px;font-size:13px;color:var(--muted);
+    padding:8px 12px;border-radius:10px;transition:.2s;
+  }
+  .ghost-btn:hover{background:rgba(148,163,184,.1);color:var(--text)}
+  .ghost-btn.active{color:var(--accent);background:rgba(34,211,238,.1)}
+  .avatar{
+    width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;
+    background:linear-gradient(135deg,#22d3ee,#6366f1);color:#04121c;
+  }
+
+  .main{flex:1;display:flex;min-height:0;position:relative}
+
+  .sidebar{
+    width:380px;flex:0 0 380px;display:flex;flex-direction:column;gap:12px;
+    padding:14px 14px 12px;border-right:1px solid var(--line);
+    background:linear-gradient(180deg,rgba(11,17,31,.94),rgba(8,13,24,.98));
+    overflow:hidden;z-index:25;
+  }
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .stat{
+    background:rgba(148,163,184,.05);border:1px solid var(--line);
+    border-radius:12px;padding:10px 8px;text-align:center;
+  }
+  .stat strong{display:block;font-size:18px;font-weight:700;letter-spacing:-.3px}
+  .stat span{font-size:11px;color:var(--muted)}
+  .stat.accent strong{color:var(--accent)}
+  .stat.green strong{color:var(--green)}
+  .stat.amber strong{color:var(--amber)}
+
+  .sidebar-head{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-top:2px}
+  .sidebar h1{font-size:17px;letter-spacing:-.2px}
+  .sidebar .sub{font-size:12px;color:var(--muted);margin-top:2px}
+  .count-pill{
+    font-size:11px;color:var(--accent);background:rgba(34,211,238,.1);
+    border:1px solid rgba(34,211,238,.25);border-radius:999px;padding:4px 9px;white-space:nowrap;
+  }
+
+  .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{
+    font-size:12px;color:var(--muted);padding:6px 11px;border-radius:999px;
+    border:1px solid var(--line);background:rgba(148,163,184,.04);transition:.18s;
+  }
+  .chip:hover{color:var(--text);border-color:rgba(148,163,184,.3)}
+  .chip.active{color:#03141b;background:var(--accent);border-color:transparent;font-weight:600}
+
+  .list{flex:1;overflow:auto;display:flex;flex-direction:column;gap:8px;padding-right:3px;min-height:0}
+  .list::-webkit-scrollbar{width:6px}
+  .list::-webkit-scrollbar-thumb{background:rgba(148,163,184,.2);border-radius:6px}
+
+  .card{
+    display:grid;grid-template-columns:68px 1fr;gap:11px;padding:9px;border-radius:13px;
+    border:1px solid transparent;background:rgba(148,163,184,.045);
+    transition:.18s;cursor:pointer;text-align:left;position:relative;
+  }
+  .card:hover{background:rgba(148,163,184,.09);border-color:rgba(148,163,184,.16);transform:translateY(-1px)}
+  .card.active{border-color:rgba(34,211,238,.5);background:rgba(34,211,238,.08);box-shadow:0 0 0 1px rgba(34,211,238,.2) inset}
+  .card .fav{
+    position:absolute;top:8px;right:8px;width:24px;height:24px;border-radius:50%;
+    display:grid;place-items:center;font-size:12px;opacity:.5;transition:.15s;z-index:2;
+  }
+  .card .fav:hover,.card .fav.on{opacity:1;color:var(--rose)}
+  .thumb{
+    width:68px;height:68px;border-radius:10px;display:grid;place-items:center;
+    font-size:22px;position:relative;overflow:hidden;
+  }
+  .thumb::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent,rgba(0,0,0,.3))}
+  .card-body{min-width:0;display:flex;flex-direction:column;gap:4px;justify-content:center;padding-right:22px}
+  .card-top{display:flex;align-items:center;justify-content:space-between;gap:6px}
+  .card h3{font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rating{font-size:11.5px;color:var(--amber);display:flex;align-items:center;gap:3px;flex:none}
+  .tag-row{display:flex;gap:5px;flex-wrap:wrap}
+  .tag{font-size:10px;color:var(--muted);background:rgba(148,163,184,.1);padding:2px 7px;border-radius:5px}
+  .meta{font-size:11px;color:#6f819d;display:flex;gap:8px;align-items:center}
+  .badge-open{color:var(--green);font-weight:600}
+  .badge-closed{color:var(--rose)}
+
+  .empty{text-align:center;padding:32px 16px;color:var(--muted);font-size:13px}
+  .empty strong{display:block;color:var(--text);margin-bottom:6px;font-size:14px}
+
+  .tip{
+    border:1px dashed rgba(148,163,184,.2);border-radius:11px;padding:9px 11px;
+    font-size:11px;color:var(--muted);line-height:1.5;background:rgba(148,163,184,.03);
+  }
+  .tip b{color:var(--text);font-weight:600}
+
+  .map-wrap{flex:1;position:relative;overflow:hidden;background:#08101f}
+  .map{position:absolute;inset:0;transform-origin:50% 50%;transition:transform .4s cubic-bezier(.22,.61,.36,1)}
+  .map svg{width:100%;height:100%;display:block}
+
+  .marker{
+    position:absolute;transform:translate(-50%,-100%);z-index:5;
+    display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;
+    transition:filter .2s, transform .2s;
+  }
+  .marker:hover{transform:translate(-50%,-100%) scale(1.1);z-index:12}
+  .pin{
+    width:32px;height:32px;border-radius:50% 50% 50% 5px;transform:rotate(-45deg);
+    display:grid;place-items:center;border:2px solid rgba(255,255,255,.88);
+    box-shadow:0 8px 18px rgba(0,0,0,.5);background:var(--c,#22d3ee);
+  }
+  .pin span{transform:rotate(45deg);font-size:14px}
+  .marker .label{
+    font-size:10.5px;font-weight:600;color:#0b1220;background:rgba(255,255,255,.94);
+    padding:3px 7px;border-radius:5px;white-space:nowrap;opacity:0;transform:translateY(-3px);
+    transition:.2s;pointer-events:none;box-shadow:0 4px 10px rgba(0,0,0,.28)
+  }
+  .marker:hover .label,.marker.active .label{opacity:1;transform:none}
+  .marker.active .pin{box-shadow:0 0 0 5px rgba(34,211,238,.25),0 10px 22px rgba(0,0,0,.55)}
+  .pulse{
+    position:absolute;top:1px;left:50%;width:32px;height:32px;border-radius:50%;
+    transform:translateX(-50%);background:var(--c,#22d3ee);opacity:.32;
+    animation:pulse 2.4s ease-out infinite;pointer-events:none;z-index:-1;
+  }
+  @keyframes pulse{0%{transform:translateX(-50%) scale(.55);opacity:.5}70%{transform:translateX(-50%) scale(2.5);opacity:0}100%{opacity:0}}
+
+  .popup{
+    position:absolute;z-index:30;width:300px;border-radius:16px;overflow:hidden;
+    background:var(--panel-solid);border:1px solid rgba(148,163,184,.22);
+    box-shadow:var(--shadow);opacity:0;pointer-events:none;transform:translateY(8px) scale(.97);
+    transition:.22s;
+  }
+  .popup.show{opacity:1;pointer-events:auto;transform:none}
+  .popup .hero{height:88px;display:grid;place-items:center;font-size:34px;position:relative}
+  .popup .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 25%,rgba(13,20,36,.92))}
+  .popup .close{
+    position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;
+    background:rgba(0,0,0,.5);display:grid;place-items:center;font-size:12px;z-index:2;color:#fff;
+  }
+  .popup .body{padding:10px 14px 14px;position:relative;margin-top:-12px}
+  .popup h4{font-size:15px}
+  .popup .sub{font-size:11.5px;color:var(--muted);margin-top:2px}
+  .popup .info{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:8px;font-size:12px;color:var(--muted)}
+  .popup .info span{display:flex;align-items:center;gap:4px}
+  .popup .row{display:flex;align-items:center;gap:8px;margin-top:12px}
+  .popup .btn{
+    flex:1;text-align:center;font-size:12px;font-weight:600;padding:9px 10px;border-radius:9px;
+    background:var(--accent);color:#03141b;transition:.15s
+  }
+  .popup .btn:hover{filter:brightness(1.08)}
+  .popup .btn.ghost{background:rgba(148,163,184,.12);color:var(--text)}
+  .popup .btn.ghost.on{color:var(--rose)}
+
+  .controls{position:absolute;right:16px;bottom:20px;display:flex;flex-direction:column;gap:7px;z-index:15}
+  .ctrl{
+    width:38px;height:38px;border-radius:11px;display:grid;place-items:center;
+    background:var(--panel);border:1px solid var(--line);backdrop-filter:blur(10px);
+    box-shadow:0 8px 20px rgba(0,0,0,.35);font-size:16px;transition:.15s;
+  }
+  .ctrl:hover{background:rgba(148,163,184,.15);transform:translateY(-1px)}
+
+  .legend{
+    position:absolute;left:16px;bottom:18px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;
+    background:var(--panel);border:1px solid var(--line);border-radius:11px;
+    padding:8px 12px;backdrop-filter:blur(10px);font-size:11px;color:var(--muted);z-index:15;
+  }
+  .legend i{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:4px}
+
+  .vignette{
+    position:absolute;inset:0;pointer-events:none;z-index:2;
+    background:radial-gradient(120% 90% at 50% 40%,transparent 42%,rgba(3,7,15,.55) 100%);
+  }
+
+  .toast{
+    position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--panel-solid);border:1px solid var(--line);color:var(--text);
+    padding:10px 18px;border-radius:999px;font-size:13px;z-index:100;
+    opacity:0;transition:.25s;pointer-events:none;box-shadow:var(--shadow);
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  @media (max-width:900px){
+    header{height:56px;flex-basis:56px;padding:0 10px;gap:8px}
+    .search{max-width:none}
+    .header-actions .ghost-btn span{display:none}
+    .sidebar{
+      position:absolute;left:0;right:0;bottom:0;top:auto;width:100%;flex-basis:auto;
+      height:55%;border-right:0;border-top:1px solid var(--line);
+      border-radius:18px 18px 0 0;box-shadow:0 -16px 40px rgba(0,0,0,.5);
+      transition:transform .3s;z-index:35;
+    }
+    .sidebar.collapsed{transform:translateY(calc(100% - 88px))}
+    .grabber{width:40px;height:4px;border-radius:4px;background:rgba(148,163,184,.35);margin:-4px auto 6px}
+    .legend{display:none}
+    .popup{width:min(88vw,300px)}
+  }
+  @media (min-width:901px){ .grabber{display:none} }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header>
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#06121c" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 21s7-6.1 7-11a7 7 0 1 0-14 0c0 4.9 7 11 7 11Z"/>
+          <circle cx="12" cy="10" r="2.4"/>
+        </svg>
+      </div>
+      <div>Atlas<small>city explorer</small></div>
+    </div>
+
+    <div class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/>
+      </svg>
+      <input id="search" type="text" placeholder="Search places, food, parks…" autocomplete="off" />
+      <span class="kbd">⌘K</span>
+    </div>
+
+    <div class="header-actions">
+      <button class="ghost-btn" id="btnLoc" title="Center on downtown">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M12 21s7-6.1 7-11a7 7 0 1 0-14 0c0 4.9 7 11 7 11Z"/><circle cx="12" cy="10" r="2.4"/>
+        </svg>
+        <span>My location</span>
+      </button>
+      <button class="ghost-btn" id="btnFavs" title="Show saved places">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z"/></svg>
+        <span>Saved</span>
+      </button>
+      <div class="avatar">FZ</div>
+    </div>
+  </header>
+
+  <div class="main">
+
+    <aside class="sidebar" id="sidebar">
+      <div class="grabber" id="grabber"></div>
+
+      <div class="stats" id="stats">
+        <div class="stat accent"><strong id="sTotal">0</strong><span>Places</span></div>
+        <div class="stat amber"><strong id="sAvg">0</strong><span>Avg rating</span></div>
+        <div class="stat green"><strong id="sOpen">0</strong><span>Open now</span></div>
+      </div>
+
+      <div class="sidebar-head">
+        <div>
+          <h1>Discover nearby</h1>
+          <p class="sub">Curated spots around downtown</p>
+        </div>
+        <span class="count-pill" id="count">0 places</span>
+      </div>
+
+      <div class="chips" id="chips">
+        <button class="chip active" data-filter="all">All</button>
+        <button class="chip" data-filter="cafe">Cafés</button>
+        <button class="chip" data-filter="food">Food</button>
+        <button class="chip" data-filter="park">Parks</button>
+        <button class="chip" data-filter="culture">Culture</button>
+        <button class="chip" data-filter="shop">Shops</button>
+        <button class="chip" data-filter="fav">♥ Saved</button>
+      </div>
+
+      <div class="list" id="list"></div>
+
+      <div class="tip">
+        <b>Tip:</b> click a pin or card · press <b>Esc</b> to close · <b>⌘K</b> to search · heart to save.
+      </div>
+    </aside>
+
+    <section class="map-wrap" id="mapWrap">
+      <div class="map" id="map">
+        <svg viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <defs>
+            <linearGradient id="water" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#0b2740"/><stop offset="1" stop-color="#08192b"/>
+            </linearGradient>
+            <pattern id="grid" width="80" height="80" patternUnits="userSpaceOnUse">
+              <path d="M80 0H0V80" fill="none" stroke="rgba(148,163,184,.045)" stroke-width="1"/>
+            </pattern>
+          </defs>
+          <rect width="1600" height="1000" fill="#08101f"/>
+          <rect width="1600" height="1000" fill="url(#grid)"/>
+          <path d="M-40 760 C 220 700, 300 560, 520 540 S 900 620, 1120 500 S 1480 360, 1660 380 L1660 1000 L-40 1000 Z" fill="url(#water)" opacity=".95"/>
+          <path d="M-40 760 C 220 700, 300 560, 520 540 S 900 620, 1120 500 S 1480 360, 1660 380" fill="none" stroke="rgba(56,189,248,.2)" stroke-width="3"/>
+          <g opacity=".9">
+            <rect x="180" y="150" width="260" height="180" rx="26" fill="#0d2a24" stroke="rgba(52,211,153,.18)"/>
+            <rect x="980" y="120" width="220" height="150" rx="22" fill="#0d2a24" stroke="rgba(52,211,153,.18)"/>
+            <rect x="620" y="700" width="300" height="150" rx="26" fill="#0d2a24" stroke="rgba(52,211,153,.18)"/>
+            <rect x="80" y="620" width="140" height="100" rx="18" fill="#0d2a24" stroke="rgba(52,211,153,.12)"/>
+          </g>
+          <g fill="#0f1a2e" stroke="rgba(148,163,184,.09)">
+            <rect x="90" y="380" width="150" height="120" rx="8"/><rect x="280" y="380" width="130" height="120" rx="8"/>
+            <rect x="470" y="130" width="140" height="110" rx="8"/><rect x="470" y="280" width="140" height="110" rx="8"/>
+            <rect x="660" y="150" width="160" height="120" rx="8"/><rect x="860" y="330" width="150" height="110" rx="8"/>
+            <rect x="1050" y="330" width="170" height="120" rx="8"/><rect x="1260" y="150" width="160" height="130" rx="8"/>
+            <rect x="1260" y="330" width="160" height="120" rx="8"/><rect x="1030" y="520" width="170" height="120" rx="8"/>
+            <rect x="1240" y="520" width="180" height="120" rx="8"/><rect x="280" y="540" width="150" height="110" rx="8"/>
+            <rect x="470" y="540" width="130" height="110" rx="8"/><rect x="680" y="400" width="140" height="100" rx="8"/>
+            <rect x="90" y="200" width="100" height="90" rx="8"/>
+          </g>
+          <g stroke="#16233d" stroke-linecap="round">
+            <path d="M0 360 H1600" stroke-width="20"/><path d="M0 640 H1600" stroke-width="24"/>
+            <path d="M380 0 V1000" stroke-width="22"/><path d="M900 0 V1000" stroke-width="18"/>
+            <path d="M1200 0 V700" stroke-width="16"/><path d="M0 200 H700" stroke-width="14"/>
+          </g>
+          <g stroke="rgba(148,163,184,.09)" stroke-width="2" stroke-dasharray="14 16">
+            <path d="M0 360 H1600"/><path d="M0 640 H1600"/><path d="M380 0 V1000"/><path d="M900 0 V1000"/>
+          </g>
+          <g fill="rgba(148,163,184,.42)" font-family="Segoe UI,sans-serif" font-size="14" letter-spacing="1.4">
+            <text x="205" y="255">RIVERSIDE PARK</text>
+            <text x="1000" y="205">OLD TOWN</text>
+            <text x="660" y="790">GARDEN DISTRICT</text>
+            <text x="1210" y="620" fill="rgba(56,189,248,.5)">ATLAS RIVER</text>
+            <text x="430" y="345">MAIN ST</text>
+            <text x="915" y="60">NORTH AVE</text>
+            <text x="100" y="180">WEST END</text>
+          </g>
+        </svg>
+
+        <div class="vignette"></div>
+        <div id="markers"></div>
+        <div class="popup" id="popup"></div>
+
+        <div class="controls">
+          <button class="ctrl" id="zin" aria-label="Zoom in">+</button>
+          <button class="ctrl" id="zout" aria-label="Zoom out">−</button>
+          <button class="ctrl" id="reset" aria-label="Reset view">⌂</button>
+        </div>
+
+        <div class="legend">
+          <span><i style="background:#22d3ee"></i>Café</span>
+          <span><i style="background:#fbbf24"></i>Food</span>
+          <span><i style="background:#34d399"></i>Park</span>
+          <span><i style="background:#a78bfa"></i>Culture</span>
+          <span><i style="background:#fb7185"></i>Shop</span>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const CATS = {
+    cafe:    { color:"#22d3ee", icon:"☕", label:"Café" },
+    food:    { color:"#fbbf24", icon:"🍜", label:"Food" },
+    park:    { color:"#34d399", icon:"🌳", label:"Park" },
+    culture: { color:"#a78bfa", icon:"🏛", label:"Culture" },
+    shop:    { color:"#fb7185", icon:"🛍", label:"Shop" }
+  };
+
+  const PLACES = [
+    { id:1,  name:"Blue Bean Café",       cat:"cafe",    x:27, y:38, rating:4.8, tags:["Coffee","Wi-Fi"],       open:true,  hours:"07:00–21:00", dist:"0.3 km", hero:"linear-gradient(135deg,#0e7490,#22d3ee)" },
+    { id:2,  name:"Noodle Lane",          cat:"food",    x:56, y:30, rating:4.6, tags:["Asian","Late night"],   open:true,  hours:"11:00–23:00", dist:"0.8 km", hero:"linear-gradient(135deg,#92400e,#fbbf24)" },
+    { id:3,  name:"Riverside Park",       cat:"park",    x:16, y:22, rating:4.9, tags:["Nature","Family"],      open:true,  hours:"Open 24h",    dist:"1.1 km", hero:"linear-gradient(135deg,#065f46,#34d399)" },
+    { id:4,  name:"Atlas Museum",         cat:"culture", x:74, y:26, rating:4.7, tags:["History","Tickets"],    open:true,  hours:"10:00–18:00", dist:"1.4 km", hero:"linear-gradient(135deg,#4c1d95,#a78bfa)" },
+    { id:5,  name:"Corner Bookshop",      cat:"shop",    x:66, y:58, rating:4.5, tags:["Books","Gifts"],        open:true,  hours:"09:00–20:00", dist:"1.0 km", hero:"linear-gradient(135deg,#9f1239,#fb7185)" },
+    { id:6,  name:"Skyline Rooftop",      cat:"food",    x:38, y:62, rating:4.4, tags:["View","Dinner"],        open:false, hours:"17:00–01:00", dist:"1.2 km", hero:"linear-gradient(135deg,#7c2d12,#fb923c)" },
+    { id:7,  name:"Mocha House",          cat:"cafe",    x:82, y:44, rating:4.3, tags:["Bakery","Quiet"],       open:true,  hours:"08:00–19:00", dist:"1.6 km", hero:"linear-gradient(135deg,#155e75,#67e8f9)" },
+    { id:8,  name:"Garden District Park", cat:"park",    x:48, y:76, rating:4.6, tags:["Jogging","Dogs"],       open:true,  hours:"Open 24h",    dist:"1.8 km", hero:"linear-gradient(135deg,#14532d,#4ade80)" },
+    { id:9,  name:"Neon Bistro",          cat:"food",    x:22, y:52, rating:4.7, tags:["Modern","Wine"],        open:true,  hours:"12:00–22:00", dist:"0.6 km", hero:"linear-gradient(135deg,#7c2d12,#f97316)" },
+    { id:10, name:"Old Town Gallery",     cat:"culture", x:68, y:18, rating:4.5, tags:["Art","Free entry"],     open:true,  hours:"11:00–19:00", dist:"1.5 km", hero:"linear-gradient(135deg,#5b21b6,#c4b5fd)" },
+    { id:11, name:"West End Market",      cat:"shop",    x:12, y:42, rating:4.2, tags:["Local","Fresh"],        open:true,  hours:"08:00–18:00", dist:"0.9 km", hero:"linear-gradient(135deg,#9f1239,#f472b6)" },
+    { id:12, name:"Harbor Lookout",       cat:"park",    x:88, y:68, rating:4.8, tags:["Sunset","Photo"],       open:true,  hours:"Open 24h",    dist:"2.1 km", hero:"linear-gradient(135deg,#064e3b,#2dd4bf)" },
+    { id:13, name:"Steam & Co",           cat:"cafe",    x:44, y:34, rating:4.6, tags:["Specialty","Pastries"], open:true,  hours:"07:30–18:00", dist:"0.5 km", hero:"linear-gradient(135deg,#0e7490,#67e8f9)" },
+    { id:14, name:"Jazz Cellar",          cat:"culture", x:58, y:48, rating:4.4, tags:["Live music","Cocktails"],open:false,hours:"19:00–02:00", dist:"1.0 km", hero:"linear-gradient(135deg,#4c1d95,#a78bfa)" },
+    { id:15, name:"Forge Hardware",       cat:"shop",    x:32, y:70, rating:4.1, tags:["Tools","Local"],        open:true,  hours:"09:00–17:00", dist:"1.3 km", hero:"linear-gradient(135deg,#9f1239,#fb7185)" },
+    { id:16, name:"Lantern Ramen",        cat:"food",    x:78, y:55, rating:4.9, tags:["Ramen","Cozy"],         open:true,  hours:"11:30–22:30", dist:"1.7 km", hero:"linear-gradient(135deg,#92400e,#fbbf24)" }
+  ];
+
+  const catKey = c => CATS[c] || { color:"#22d3ee", icon:"•", label:c };
+  let favorites = new Set(JSON.parse(localStorage.getItem("atlas-favs") || "[]"));
+  function saveFavs() { localStorage.setItem("atlas-favs", JSON.stringify([...favorites])); }
+
+  const markersEl = document.getElementById("markers");
+  const listEl    = document.getElementById("list");
+  const popupEl   = document.getElementById("popup");
+  const countEl   = document.getElementById("count");
+  const searchEl  = document.getElementById("search");
+  const mapEl     = document.getElementById("map");
+  const mapWrap   = document.getElementById("mapWrap");
+  const toastEl   = document.getElementById("toast");
+
+  let activeId = null;
+  let filter = "all";
+  let query = "";
+  let zoom = 1;
+
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    clearTimeout(toastEl._t);
+    toastEl._t = setTimeout(() => toastEl.classList.remove("show"), 2200);
+  }
+
+  function visible() {
+    return PLACES.filter(p => {
+      const matchFilter = filter === "all" || (filter === "fav" ? favorites.has(p.id) : p.cat === filter);
+      const matchQuery = !query || (p.name + " " + p.tags.join(" ") + " " + catKey(p.cat).label).toLowerCase().includes(query);
+      return matchFilter && matchQuery;
+    });
+  }
+
+  function stars(r) { return "★ " + r.toFixed(1); }
+
+  function updateStats(items) {
+    document.getElementById("sTotal").textContent = items.length;
+    const avg = items.length ? (items.reduce((s,p) => s + p.rating, 0) / items.length).toFixed(1) : "—";
+    document.getElementById("sAvg").textContent = avg;
+    document.getElementById("sOpen").textContent = items.filter(p => p.open).length;
+  }
+
+  function render() {
+    const items = visible();
+    countEl.textContent = items.length + " place" + (items.length === 1 ? "" : "s");
+    updateStats(items);
+
+    if (!items.length) {
+      listEl.innerHTML = `<div class="empty"><strong>No places found</strong>Try another filter or clear the search.</div>`;
+    } else {
+      listEl.innerHTML = "";
+      items.forEach(p => {
+        const c = catKey(p.cat);
+        const isFav = favorites.has(p.id);
+        const card = document.createElement("button");
+        card.className = "card" + (p.id === activeId ? " active" : "");
+        card.dataset.id = p.id;
+        card.innerHTML = `
+          <div class="thumb" style="background:${p.hero}">${c.icon}</div>
+          <div class="card-body">
+            <div class="card-top">
+              <h3>${p.name}</h3>
+              <span class="rating">${stars(p.rating)}</span>
+            </div>
+            <div class="tag-row">${p.tags.slice(0,2).map(t => `<span class="tag">${t}</span>`).join("")}</div>
+            <div class="meta">
+              <span class="${p.open ? "badge-open" : "badge-closed"}">${p.open ? "Open" : "Closed"}</span>
+              <span>${p.dist}</span>
+            </div>
+          </div>
+          <span class="fav ${isFav ? "on" : ""}" data-fav="${p.id}">${isFav ? "♥" : "♡"}</span>`;
+        card.addEventListener("click", e => {
+          if (e.target.closest("[data-fav]")) { e.stopPropagation(); toggleFav(p.id); return; }
+          select(p.id, true);
+        });
+        card.addEventListener("mouseenter", () => highlight(p.id, true));
+        card.addEventListener("mouseleave", () => highlight(p.id, false));
+        listEl.appendChild(card);
+      });
+    }
+
+    markersEl.innerHTML = "";
+    items.forEach(p => {
+      const c = catKey(p.cat);
+      const m = document.createElement("button");
+      m.className = "marker" + (p.id === activeId ? " active" : "");
+      m.style.left = p.x + "%";
+      m.style.top  = p.y + "%";
+      m.style.setProperty("--c", c.color);
+      m.dataset.id = p.id;
+      m.innerHTML = `<span class="pulse"></span><div class="pin"><span>${c.icon}</span></div><div class="label">${p.name}</div>`;
+      m.addEventListener("click", e => { e.stopPropagation(); select(p.id, false); });
+      markersEl.appendChild(m);
+    });
+  }
+
+  function toggleFav(id) {
+    if (favorites.has(id)) { favorites.delete(id); toast("Removed from saved"); }
+    else { favorites.add(id); toast("Saved to favorites"); }
+    saveFavs();
+    render();
+    if (activeId === id) select(id, false);
+  }
+
+  function highlight(id, on) {
+    const m = markersEl.querySelector(`.marker[data-id="${id}"]`);
+    if (m) m.classList.toggle("active", on || id === activeId);
+  }
+
+  function select(id, fromList) {
+    activeId = id;
+    const p = PLACES.find(x => x.id === id);
+    if (!p) return;
+    const c = catKey(p.cat);
+    const isFav = favorites.has(p.id);
+
+    document.querySelectorAll(".marker").forEach(m => m.classList.toggle("active", +m.dataset.id === id));
+    document.querySelectorAll(".card").forEach(card => card.classList.toggle("active", +card.dataset.id === id));
+
+    popupEl.innerHTML = `
+      <div class="hero" style="background:${p.hero}">${c.icon}
+        <button class="close" id="pclose">✕</button>
+      </div>
+      <div class="body">
+        <h4>${p.name}</h4>
+        <div class="sub">${c.label} · ${p.dist}</div>
+        <div class="info">
+          <span class="${p.open ? "badge-open" : "badge-closed"}">${p.open ? "● Open" : "● Closed"}</span>
+          <span>${p.hours}</span>
+          <span>${stars(p.rating)}</span>
+        </div>
+        <div class="tag-row" style="margin-top:8px">${p.tags.map(t => `<span class="tag">${t}</span>`).join("")}</div>
+        <div class="row">
+          <button class="btn" id="pgo">Directions</button>
+          <button class="btn ghost ${isFav ? "on" : ""}" id="psave">${isFav ? "♥ Saved" : "♡ Save"}</button>
+        </div>
+      </div>`;
+
+    const rect = mapWrap.getBoundingClientRect();
+    const px = rect.width  * p.x / 100;
+    const py = rect.height * p.y / 100;
+    const w = 300, h = 210;
+    let left = px + 22, top = py - h - 8;
+    if (left + w > rect.width - 10) left = px - w - 22;
+    if (left < 10) left = 10;
+    if (top < 10) top = py + 26;
+    popupEl.style.left = left + "px";
+    popupEl.style.top  = top + "px";
+    popupEl.classList.add("show");
+
+    if (fromList) {
+      mapEl.style.transformOrigin = `${p.x}% ${p.y}%`;
+      if (zoom < 1.3) setZoom(1.35);
+    }
+
+    document.getElementById("pclose").onclick = closePopup;
+    document.getElementById("pgo").onclick = () => toast("Directions to " + p.name + " (demo)");
+    document.getElementById("psave").onclick = () => toggleFav(p.id);
+  }
+
+  function closePopup() {
+    popupEl.classList.remove("show");
+    activeId = null;
+    document.querySelectorAll(".marker,.card").forEach(el => el.classList.remove("active"));
+  }
+
+  function setZoom(z) {
+    zoom = Math.min(2.4, Math.max(1, z));
+    mapEl.style.transform = `scale(${zoom})`;
+  }
+
+  document.getElementById("zin").onclick  = () => setZoom(zoom + 0.2);
+  document.getElementById("zout").onclick = () => setZoom(zoom - 0.2);
+  document.getElementById("reset").onclick = () => { setZoom(1); closePopup(); mapEl.style.transformOrigin = "50% 50%"; };
+
+  document.getElementById("btnLoc").onclick = () => {
+    setZoom(1.4);
+    mapEl.style.transformOrigin = "40% 45%";
+    toast("Centered on downtown");
+  };
+
+  document.getElementById("btnFavs").onclick = () => {
+    const chip = document.querySelector('.chip[data-filter="fav"]');
+    document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+    chip.classList.add("active");
+    filter = "fav";
+    render();
+    document.getElementById("btnFavs").classList.add("active");
+  };
+
+  document.getElementById("chips").addEventListener("click", e => {
+    const chip = e.target.closest(".chip");
+    if (!chip) return;
+    document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+    chip.classList.add("active");
+    filter = chip.dataset.filter;
+    document.getElementById("btnFavs").classList.toggle("active", filter === "fav");
+    render();
+  });
+
+  searchEl.addEventListener("input", e => {
+    query = e.target.value.trim().toLowerCase();
+    render();
+  });
+
+  document.addEventListener("keydown", e => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+      e.preventDefault(); searchEl.focus(); searchEl.select();
+    }
+    if (e.key === "Escape") closePopup();
+  });
+
+  mapWrap.addEventListener("click", e => {
+    if (e.target.closest(".popup") || e.target.closest(".marker") || e.target.closest(".ctrl")) return;
+    closePopup();
+  });
+
+  const sidebar = document.getElementById("sidebar");
+  const grabber = document.getElementById("grabber");
+  grabber.addEventListener("click", () => sidebar.classList.toggle("collapsed"));
+  if (window.innerWidth <= 900) sidebar.classList.add("collapsed");
+
+  render();
+</script>
+</body>
+</html>
