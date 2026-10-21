@@ -3,10 +3,13 @@
 A **single-file** map dashboard you can rebrand in an afternoon. Dark UI, live filtering, stat cards and a detail panel — the kind of screen property, delivery, travel and local-service businesses pay for.
 
 <p align="left">
+  <a href="https://wa7181633-rgb.github.io/atlas/"><img alt="Live Demo" src="https://img.shields.io/badge/Live%20Demo-Open-22d3ee?style=for-the-badge&logo=googlechrome&logoColor=white" /></a>
   <img alt="HTML" src="https://img.shields.io/badge/HTML-single%20file-E34F26?style=flat-square&logo=html5&logoColor=white" />
   <img alt="No build" src="https://img.shields.io/badge/build-none-34d399?style=flat-square" />
   <img alt="License" src="https://img.shields.io/badge/license-MIT-22d3ee?style=flat-square" />
 </p>
+
+**Live:** https://wa7181633-rgb.github.io/atlas/
 
 ## What it is
 
@@ -69,9 +72,11 @@ const places = [
 **Netlify:** drag the folder onto https://app.netlify.com/drop.
 **Cloudflare Pages:** connect the repo, no build command, output directory `/`.
 
-## Custom work
+## Need a custom version?
 
-Need it wired to a real database, live GPS feed or your own API? That's what I do — see my profile or open an issue.
+Want this connected to a real database, live GPS, or your own API? That’s exactly what I do.
+
+→ See my profile or message me on [WhatsApp](https://wa.me/923122581354)
 
 ## License
 
