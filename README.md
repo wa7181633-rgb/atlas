@@ -25,7 +25,7 @@ One `index.html` containing everything: layout, styles and logic. Open it in a b
 ## Quick start
 
 ```bash
-git clone https://github.com/farmoz/atlas
+git clone https://github.com/wa7181633-rgb/atlas
 cd atlas
 # just open the file
 start index.html      # Windows
