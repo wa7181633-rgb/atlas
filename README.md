@@ -11,6 +11,8 @@ A **single-file** product-grade map explorer. Dark UI, live filters, stats, favo
 
 **Live:** https://wa7181633-rgb.github.io/atlas/
 
+*(If the link does not open yet, enable GitHub Pages: Settings → Pages → Source `main` / root)*
+
 ---
 
 ## What’s new (advanced version)
@@ -76,11 +78,23 @@ Data is a plain array — swap it for your own records or fetch from an API.
 **Netlify:** drag the folder onto https://app.netlify.com/drop  
 **Cloudflare Pages:** connect the repo, no build command
 
-## Need a custom version?
+---
 
-Connected to a real database, live GPS, or your own API? That’s exactly what I do.
+## Buy this template or get a custom version
 
-→ [WhatsApp](https://wa.me/923122581354) · [Portfolio](https://wa7181633-rgb.github.io/farmoz-site/)
+**Ready-to-use template: $29**  
+MIT licensed — take it, modify it, ship it.
+
+→ [**Get it via WhatsApp**](https://wa.me/923122581354)
+
+Need it connected to a real database, live GPS, or your own API? That’s exactly what I do.
+
+| Service | Starting at |
+|---------|-------------|
+| Custom map / dashboard | $499 |
+| Full business website | $149 |
+
+→ [WhatsApp](https://wa.me/923122581354) · [Portfolio](https://wa7181633-rgb.github.io/farmoz-site/) · farmoz98@gmail.com
 
 ## License
 
